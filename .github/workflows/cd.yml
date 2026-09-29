@@ -1,0 +1,55 @@
+# .github/workflows/cd.yml
+name: Continuous Deployment
+
+# Il flusso si attiva automaticamente solo quando il codice viene unito (push) sul ramo principale
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # IMPORTANTE: Questo lavoro parte solo se il flusso di Integration (CI) si è concluso con successo
+    # needs: [ build-and-test ]
+
+    steps:
+    # 1. Scarica il codice definitivo all'interno della macchina di deployment
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Configura le credenziali di accesso sicure per comunicare con il cloud Amazon AWS
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-3
+
+    # 3. Accede al registro dei container sicuro di Amazon (Amazon ECR) per depositare l'immagine Docker
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # 4. Compila, tagga e invia il container Docker del backend direttamente sul registro Cloud remoto
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: modern-website-backend
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/backend/Dockerfile .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    # 5. Effettua l'accesso SSH criptato sul server virtuale (EC2) programmato con Terraform per aggiornare l'app in produzione
+    - name: Deploy to AWS EC2 Instance
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.AWS_SERVER_IP }}
+        username: ubuntu
+        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+        script: |
+          # Accede a Docker sul server, scarica la nuovissima versione del container e riavvia il sito senza interruzioni
+          sudo docker pull ${{ steps.login-ecr.outputs.registry }}/modern-website-backend:latest
+          sudo docker stop modern_website_backend || true
+          sudo docker rm modern_website_backend || true
+          sudo docker run -d --name modern_website_backend -p 80:3000 ${{ steps.login-ecr.outputs.registry }}/modern-website-backend:latest

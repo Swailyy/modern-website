@@ -1,0 +1,13 @@
+services:
+  backend-server:
+    build:
+      context: .
+      dockerfile: src/backend/Dockerfile
+    container_name: modern_website_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./logs:/app/logs
+    restart: always

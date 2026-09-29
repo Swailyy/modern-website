@@ -1,0 +1,43 @@
+# .github/workflows/ci.yml
+name: Continuous Integration
+
+# Il flusso si attiva automaticamente ad ogni PUSH o PULL REQUEST sul ramo principale (main o master)
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Utilizza l'ultima versione stabile di Linux Ubuntu fornita da GitHub
+
+    steps:
+    # 1. Scarica il codice del tuo progetto all'interno della macchina virtuale di GitHub
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Configura l'ambiente Node.js nella versione stabile corretta
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+        cache-dependency-path: src/backend/package-lock.json
+
+    # 3. Installa le dipendenze del monorepo per assicurarsi che non ci siano pacchetti mancanti o corrotti
+    - name: Install dependencies
+      run: |
+        npm install
+        cd src/backend && npm install
+
+    # 4. Verifica che non ci siano errori di sintassi avviando un controllo di build preliminare di Node
+    - name: Verify Backend Syntax
+      run: |
+        cd src/backend
+        node -e "require('./src/app.js')"
+
+    # 5. Metti alla prova l'infrastruttura Docker: simula la build dell'immagine per accertarsi che funzioni sul Cloud
+    - name: Test Docker Build
+      run: |
+        docker compose build

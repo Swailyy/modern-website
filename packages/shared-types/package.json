@@ -1,0 +1,9 @@
+{
+  "name": "@modern-website/shared-types",
+  "version": "1.0.0",
+  "description": "Contratti dati e interfacce TypeScript condivise tra Frontend e Backend",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "keywords": ["monorepo", "types", "enterprise"]
+}

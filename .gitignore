@@ -1,0 +1,24 @@
+# Dipendenze Node.js (Vengono ricreate con npm install, non vanno su GitHub)
+node_modules/
+dist/
+.npm/
+
+# File di Log (Tengono traccia delle azioni sul tuo PC, non vanno online)
+logs/backend/*.log
+logs/db/
+logs/nginx/
+
+# File del Database locale (Il file JSON locale non va su GitHub in produzione)
+logs/backend/prodotti.json
+
+# File di configurazione di Docker locali
+.docker/
+
+# File temporanei di Terraform per l'infrastruttura Cloud
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# File di ambiente segreti (Password e chiavi private)
+.env
+.env.production

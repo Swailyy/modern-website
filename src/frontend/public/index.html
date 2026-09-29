@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il mio Sito Moderno</title>
+    <!-- Colleghiamo il file CSS tramite la rotta statica impostata su Express -->
+    <link rel="stylesheet" href="/src/assets/styles/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Benvenuto nel mio sito web!</h1>
+        <p>Questa è la pagina principale (Frontend).</p>
+
+        <!-- Form esistente per aggiungere prodotti -->
+        <form id="form-prodotto" style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 12px;">
+            <input type="text" id="input-nome" placeholder="Nome del prodotto" required
+                style="padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white;">
+            <input type="number" id="input-prezzo" placeholder="Prezzo (€)" step="0.01" required
+                style="padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white;">
+            <button type="submit"
+                style="padding: 12px; border-radius: 8px; border: none; background-color: #38bdf8; color: #0f172a; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">Aggiungi
+                Prodotto</button>
+        </form>
+
+        <!-- NUOVO: Punto di ancoraggio per l'atomo di ricerca -->
+        <div id="barra-ricerca-container"></div>
+
+        <h2>Prodotti disponibili dal server:</h2>
+        <ul id="lista-prodotti">
+            <li>Caricamento prodotti in corso...</li>
+        </ul>
+    </div>
+
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
